@@ -41,9 +41,10 @@ cantons_gdf.plot('popdensity', legend=True)
 #read hydropower stations
 hydropowerstations_gdf=gpd.read_file(myworkspace+"/"+"ch_hydropowerplants.shp")
 hydropowerstations_gdf.crs
+hydropowerstations_gdf.plot()
 #re-project from LV03 to LV95 (EPSG = 2056)
 hydropowerstations_gdf_LV95=hydropowerstations_gdf.to_crs("EPSG:2056")
-
+hydropowerstations_gdf_LV95.plot()
 
 
 hydropowerstations_gdf.columns
