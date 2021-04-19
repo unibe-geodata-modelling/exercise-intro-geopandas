@@ -14,6 +14,8 @@ import geopandas as gpd
 myworkspace="C:/DATA"
 #read Swiss cantons
 cantons_gdf=gpd.read_file(myworkspace+"/"+"ch_kantone.shp")
+#show attribute table
+cantons_gdf.head()
 #check columns
 cantons_gdf.columns
 #show the geoopandas dataframe
@@ -64,7 +66,7 @@ hydropower_cantons.plot()
 #calculate how many hydropower stations are located in each Canton
 hydropowerplantspercanton=hydropower_cantons[["geometry","NAME"]].groupby(by="NAME").count()
 hydropowerplantspercanton.rename(columns={"geometry":"numpowplants"}, inplace=True)
-
+hydropowerplantspercanton
 
 #join this back to the cantons geodataframe
 cantons_gdf=cantons_gdf.merge(hydropowerplantspercanton, on="NAME")
@@ -76,30 +78,26 @@ ax=cantons_gdf.plot("numpowplants", legend=True)
 ax.set_title("hydropower plants per Swiss Canton")
 hydropowerstations_gdf_LV95.plot(ax=ax, marker='o', color='black', markersize=1)
 
-
 #write the output file
 hydropowerstations_gdf_LV95.to_file(myworkspace+"/"+"ch_hydropowerplantsLV95.shp")
 cantons_gdf.to_file(myworkspace+"/"+"ch_hydropowerplantspercanton.shp")
 
+#re-project hydropower stations to WGS84
+hydropowerstations_gdf_WGS84=hydropowerstations_gdf_LV95.to_crs("EPSG:4326")
+hydropowerstations_gdf_WGS84.crs
+hydropowerstations_gdf_WGS84.plot()
+hydropowerstations_gdf_Mercator=hydropowerstations_gdf_WGS84.to_crs("EPSG:3857")
+
+
+#plotting with background maps
+#background maps  need Mercator projection
+import contextily as ctx
+ax = hydropowerstations_gdf_Mercator.plot(figsize=(10, 10), alpha=0.5, edgecolor='k')
+ctx.add_basemap(ax)
+plt.title('hydropower stations')
 
 #other example: read a file from internet
 url = "http://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_land.geojson"
 df = gpd.read_file(url)
 df.plot()
-
-#plotting with background maps
-import folium #install with conda install -c conda-forge folium or pip respectively
-
-# Stamen Terrain
-map = folium.Map(location = [13.406,80.110], tiles = "Stamen Terrain", zoom_start = 9)
-map
-
-
-
-
-
-
-
-
-
 
